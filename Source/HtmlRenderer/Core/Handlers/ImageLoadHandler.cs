@@ -301,13 +301,15 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
         {
             try
             {
-                var imageFileStream = File.Open(source, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                lock (_loadCompleteCallback)
+                using (var imageFileStream = File.Open(source, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
-                    _imageFileStream = imageFileStream;
-                    if (!_disposed)
-                        _image = _htmlContainer.Adapter.ImageFromStream(_imageFileStream);
-                    _releaseImageObject = true;
+                    lock (_loadCompleteCallback)
+                    {
+                        _imageFileStream = imageFileStream;
+                        if (!_disposed)
+                            _image = _htmlContainer.Adapter.ImageFromStream(_imageFileStream);
+                        _releaseImageObject = true;
+                    }
                 }
                 ImageLoadComplete();
             }
@@ -325,7 +327,16 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
         /// </summary>
         private void SetImageFromUrl(Uri source)
         {
-            var filePath = CommonUtils.GetLocalfileName(source);
+            FileInfo filePath = null;
+            if (string.IsNullOrEmpty(HtmlRendererSettings.ImageCachePath))
+            {
+                filePath = CommonUtils.GetLocalfileName(source);
+            }
+            else
+            {
+                filePath = CommonUtils.GetCacheFileInfo(source, HtmlRendererSettings.ImageCachePath);                
+            }
+
             if (filePath.Exists && filePath.Length > 0)
             {
                 SetImageFromFile(filePath);

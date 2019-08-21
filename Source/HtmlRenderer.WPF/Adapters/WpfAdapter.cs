@@ -125,7 +125,6 @@ namespace TheArtOfDev.HtmlRenderer.WPF.Adapters
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.EndInit();
             bitmap.Freeze();
-
             return new ImageAdapter(bitmap);
         }
 

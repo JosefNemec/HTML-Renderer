@@ -206,6 +206,34 @@ namespace TheArtOfDev.HtmlRenderer.Core.Utils
             return null;
         }
 
+        public static string MD5(string s)
+        {
+            using (var provider = System.Security.Cryptography.MD5.Create())
+            {
+                var builder = new StringBuilder();
+
+                foreach (byte b in provider.ComputeHash(Encoding.UTF8.GetBytes(s)))
+                {
+                    builder.Append(b.ToString("x2").ToLower());
+                }
+
+                return builder.ToString();
+            }
+        }
+
+        public static FileInfo GetCacheFileInfo(Uri imageUri, string cachePath)
+        {
+            var extension = Path.GetExtension(imageUri.Segments[imageUri.Segments.Length - 1]);
+            var md5 = MD5(imageUri.AbsoluteUri);
+            var cacheFileName = md5 + extension;
+            if (!Directory.Exists(cachePath))
+            {
+                Directory.CreateDirectory(cachePath);
+            }
+
+            return new FileInfo(Path.Combine(cachePath, cacheFileName));
+        }
+
         /// <summary>
         /// Gets the representation of the online uri on the local disk.
         /// </summary>

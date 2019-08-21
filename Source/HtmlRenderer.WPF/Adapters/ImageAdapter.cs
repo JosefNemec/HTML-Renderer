@@ -52,7 +52,7 @@ namespace TheArtOfDev.HtmlRenderer.WPF.Adapters
         }
 
         public override void Dispose()
-        {
+        {            
             if (_image.StreamSource != null)
                 _image.StreamSource.Dispose();
         }

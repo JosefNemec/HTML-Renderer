@@ -116,6 +116,7 @@
     <Compile Include="Adapters\RImage.cs" />
     <Compile Include="Adapters\RPen.cs" />
     <Compile Include="Core\Utils\SubString.cs" />
+    <Compile Include="HtmlRendererSettings.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
