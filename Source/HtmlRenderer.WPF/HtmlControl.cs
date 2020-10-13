@@ -271,6 +271,10 @@ namespace TheArtOfDev.HtmlRenderer.WPF
                 _htmlContainer.ClearSelection();
         }
 
+        public static void ClearBrushCache()
+        {
+            WPF.Adapters.WpfAdapter.Instance.ClearCache();
+        }
 
         #region Private methods
 

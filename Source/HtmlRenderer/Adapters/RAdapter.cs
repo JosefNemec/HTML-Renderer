@@ -454,6 +454,12 @@ namespace TheArtOfDev.HtmlRenderer.Adapters
             throw new NotImplementedException();
         }
 
+        public void ClearCache()
+        {
+            _brushesCache.Clear();
+            _penCache.Clear();
+        }
+
         #endregion
     }
 }

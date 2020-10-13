@@ -63,13 +63,13 @@ namespace TheArtOfDev.HtmlRenderer.WPF.Adapters
 
             foreach (var family in Fonts.SystemFontFamilies)
             {
-	            try
-	            {
-	                AddFontFamily(new FontFamilyAdapter(family));
-	            }
-	            catch
-	            {
-	            }
+                try
+                {
+                    AddFontFamily(new FontFamilyAdapter(family));
+                }
+                catch
+                {
+                }
             }
         }
 

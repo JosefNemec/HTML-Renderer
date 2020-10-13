@@ -21,25 +21,17 @@ namespace TheArtOfDev.HtmlRenderer.WPF.Adapters
     internal sealed class BrushAdapter : RBrush
     {
         /// <summary>
-        /// The actual WPF brush instance.
-        /// </summary>
-        private readonly Brush _brush;
-
-        /// <summary>
         /// Init.
         /// </summary>
         public BrushAdapter(Brush brush)
         {
-            _brush = brush;
+            Brush = brush;
         }
 
         /// <summary>
         /// The actual WPF brush instance.
         /// </summary>
-        public Brush Brush
-        {
-            get { return _brush; }
-        }
+        public Brush Brush { get; }
 
         public override void Dispose()
         { }
