@@ -6,7 +6,7 @@
 // like the days and months;
 // they die and are reborn,
 // like the four seasons."
-// 
+//
 // - Sun Tsu,
 // "The Art of War"
 
@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Windows.Media.Imaging;
 using TheArtOfDev.HtmlRenderer.Adapters;
 using TheArtOfDev.HtmlRenderer.Adapters.Entities;
 using TheArtOfDev.HtmlRenderer.Core.Entities;
@@ -85,7 +86,6 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
         private bool _disposed;
 
         #endregion
-
 
         /// <summary>
         /// Init.
@@ -173,7 +173,6 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
             _disposed = true;
             ReleaseObjects();
         }
-
 
         #region Private methods
 
@@ -301,6 +300,32 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
         {
             try
             {
+                if (source.Contains(HtmlRendererSettings.ImageCachePath))
+                {
+                    var converted = false;
+                    using (var stream = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.Default);
+                        if (decoder.Frames.Count > 1)
+                        {
+                            converted = true;
+                            using (var newSteam = new FileStream(source + ".temp", FileMode.Create))
+                            {
+                                var frame = decoder.Frames[0];
+                                var encoder = new PngBitmapEncoder();
+                                encoder.Frames.Add(frame);
+                                encoder.Save(newSteam);
+                            }
+                        }
+                    }
+
+                    if (converted)
+                    {
+                        File.Delete(source);
+                        File.Move(source + ".temp", source);
+                    }
+                }
+
                 using (var imageFileStream = File.Open(source, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     lock (_loadCompleteCallback)
@@ -334,7 +359,7 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
             }
             else
             {
-                filePath = CommonUtils.GetCacheFileInfo(source, HtmlRendererSettings.ImageCachePath);                
+                filePath = CommonUtils.GetCacheFileInfo(source, HtmlRendererSettings.ImageCachePath);
             }
 
             if (filePath.Exists && filePath.Length > 0)

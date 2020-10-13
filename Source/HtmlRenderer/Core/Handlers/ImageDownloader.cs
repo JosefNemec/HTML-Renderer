@@ -6,7 +6,7 @@
 // like the days and months;
 // they die and are reborn,
 // like the four seasons."
-// 
+//
 // - Sun Tsu,
 // "The Art of War"
 
@@ -16,6 +16,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Threading;
+using System.Windows.Media.Imaging;
 using TheArtOfDev.HtmlRenderer.Core.Utils;
 
 namespace TheArtOfDev.HtmlRenderer.Core.Handlers
@@ -33,7 +34,7 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
     /// Handler for downloading images from the web.<br/>
     /// Single instance of the handler used for all images downloaded in a single html, this way if the html contains more
     /// than one reference to the same image it will be downloaded only once.<br/>
-    /// Also handles corrupt, partial and canceled downloads by first downloading to temp file and only if successful moving to cached 
+    /// Also handles corrupt, partial and canceled downloads by first downloading to temp file and only if successful moving to cached
     /// file location.
     /// </summary>
     internal sealed class ImageDownloader : IDisposable
@@ -44,7 +45,7 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
         private readonly List<WebClient> _clients = new List<WebClient>();
 
         /// <summary>
-        /// dictionary of image cache path to callbacks of download to handle multiple requests to download the same image 
+        /// dictionary of image cache path to callbacks of download to handle multiple requests to download the same image
         /// </summary>
         private readonly Dictionary<string, List<DownloadFileAsyncCallback>> _imageDownloadCallbacks = new Dictionary<string, List<DownloadFileAsyncCallback>>();
 
@@ -92,7 +93,6 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
         {
             ReleaseObjects();
         }
-
 
         #region Private/Protected methods
 
@@ -173,7 +173,6 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
                     {
                         error = new Exception("Failed to load image, not image content type: " + contentType);
                     }
-
                 }
 
                 if (error == null)
@@ -182,7 +181,31 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
                     {
                         try
                         {
-                            File.Move(tempPath, filePath);
+                            var converted = false;
+                            using (var stream = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                            {
+                                var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.Default);
+                                if (decoder.Frames.Count > 1)
+                                {
+                                    converted = true;
+                                    using (var newSteam = new FileStream(filePath, FileMode.Create))
+                                    {
+                                        var frame = decoder.Frames[0];
+                                        var encoder = new PngBitmapEncoder();
+                                        encoder.Frames.Add(frame);
+                                        encoder.Save(newSteam);
+                                    }
+                                }
+                            }
+
+                            if (converted)
+                            {
+                                File.Delete(tempPath);
+                            }
+                            else
+                            {
+                                File.Move(tempPath, filePath);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -236,7 +259,6 @@ namespace TheArtOfDev.HtmlRenderer.Core.Handlers
         }
 
         #endregion
-
 
         #region Inner class: DownloadData
 
